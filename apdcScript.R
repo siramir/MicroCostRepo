@@ -9,8 +9,10 @@ library(magrittr)
 #load apdc file--------
 setwd("C:/Users/Amir/MicroCost")
 load(paste(getwd(),'/Data/apdc.obj',sep = ''))
-apdc_sample <- apdc %>% sample_n(10)
 
+usefulApdc <- c("PPN","admdate","admYear","mthBirth","yrBirth","sex","los","cost_wt_a","cost_wt_avg","ardrg")
+Apdc <-  apdc %>% select(which(colnames(apdc) %in% usefulApdc))
+str(Apdc)
 # some cleaning on apdc ---------------------------------------------------
 
 # apdc$emergncy <- factor(apdc$emergncy)
@@ -25,6 +27,23 @@ apdc_sample <- apdc %>% sample_n(10)
 # costYear <- interval(beginDate, endDate) 
 # selected <- apdc %>% filter(admdate %within% costYear)
 
+beginDate <- apdc$admdate[1] 
+endDate <- beginDate + years(1)
+costYear <- interval(beginDate, endDate) 
+selected <- apdc %>% filter(admdate %within% costYear)
+
+byPpn <- apdc %>% group_by(PPN)
+
+dateSelect <- function (df) {
+  admdate <-  df$admdate
+  beginDate  <- unique(df$datentoday)[1]
+  endDate <- beginDate + years(1) 
+  costYear <- interval(beginDate, endDate)
+  selected <- df %>% filter(admdate %within% costYear)
+  return(selected)
+}
+
+yearCostData <-  byPpn %>% do(dateSelect(.))
 # Plot cost_wt_a vs los for each drg --------------------------------------
 drgCostYear <- apdc %>% select(ardrg,admdate, admYear, cost_wt_a,cost_wt_avg, los)
 summArdrg <- drgCostYear %>% group_by(ardrg,admYear) %>% summarise(avg = mean(cost_wt_a,na.rm = TRUE),n =n())
@@ -83,9 +102,7 @@ rm(joined,naCost,naIndx,drgCostYear,summArdrg)
 byPpn <- apdc %>% group_by(PPN) asad <- byPpn %>% summarize(beginDate =  min(admdate)) 
 asad <- asad %>% mutate(endDate = asad$beginDate + years(1),costYear = interval(beginDate, endDate)) 
 apdc <- apdc %>% left_join(asad[,c('PPN','costYear')])
-savePath <- paste(getwd(),'/Data/',sep='')
-dir.create(savePath)
-save(apdc, file = paste(savePath,"apdc.obj",sep = ""))
+
 
 plm <- function (df) {
   x <- df %>% select(los)
@@ -108,3 +125,5 @@ models <-
   apdc %>% filter(!is.na(cost_wt_a)) %>% 
   select(ardrg, admYear,los,cost_wt_a) %>% 
   group_by(ardrg,admYear) %>% do(model = plm(.))
+
+options(scipen=999)
