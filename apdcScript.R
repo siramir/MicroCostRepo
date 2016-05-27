@@ -12,6 +12,7 @@ load(paste(getwd(),'/Data/apdc.obj',sep = ''))
 
 usefulApdc <- c("PPN","admdate","admYear","mthBirth","yrBirth","sex","los","cost_wt_a","cost_wt_avg","ardrg")
 Apdc <-  apdc %>% select(which(colnames(apdc) %in% usefulApdc))
+rm(usefulApdc)
 str(Apdc)
 # some cleaning on apdc ---------------------------------------------------
 
@@ -127,3 +128,7 @@ models <-
   group_by(ardrg,admYear) %>% do(model = plm(.))
 
 options(scipen=999)
+
+summary(Apdc$yrBirth)
+summary(Seef$yrBirth)
+elite <- Apdc %>% filter(yrBirth >= 1910 & yrBirth <= 1963)
