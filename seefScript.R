@@ -19,7 +19,7 @@ usefulSeef <- c("seef_project_id","Q01_datentoday","Q03_sex45u","datentoday","Q0
 Seef <-  seefDf %>% select(which(colnames(seefDf) %in% usefulSeef))
 Seef <- Seef %>% mutate(mthBirth = month(Q02_dateofbirth45u),yrBirth=year(Q02_dateofbirth45u))
 str(Seef)
-rm(usefulSeef)
+rm(usefulSeef,seefDf)
 # Match table -------------------------------------------------------------
 
 # testMatch <- left_join(seef,Apdc, by= c("Q03_sex45u"="sex" , "mthBirth"="mthBirth", "yrBirth"="yrBirth"),copy = FALSE)

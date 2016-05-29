@@ -12,7 +12,7 @@ load(paste(getwd(),'/Data/apdc.obj',sep = ''))
 
 usefulApdc <- c("PPN","admdate","admYear","mthBirth","yrBirth","sex","los","cost_wt_a","cost_wt_avg","ardrg")
 Apdc <-  apdc %>% select(which(colnames(apdc) %in% usefulApdc))
-rm(usefulApdc)
+rm(usefulApdc,apdc)
 str(Apdc)
 # some cleaning on apdc ---------------------------------------------------
 
